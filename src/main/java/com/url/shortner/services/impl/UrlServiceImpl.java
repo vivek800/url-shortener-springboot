@@ -12,13 +12,12 @@ import org.springframework.stereotype.Service;
  @Service
 public class UrlServiceImpl implements UrlService {
 
-    private final UrlCacheService cacheService;
-    private final UrlRepository urlRepository;
+     private final UrlRepository urlRepository;
 
-    public UrlServiceImpl(UrlRepository urlRepository,
-                          UrlCacheService cacheService) {
+    public UrlServiceImpl(UrlRepository urlRepository
+                           ) {
         this.urlRepository = urlRepository;
-        this.cacheService = cacheService;
+         
     }
 
     @Transactional
@@ -36,7 +35,7 @@ public class UrlServiceImpl implements UrlService {
         urlRepository.save(savedUrl);
 
          
-        cacheService.save(shortCode, longUrl);
+         
 
         return shortCode;
     }
@@ -44,15 +43,11 @@ public class UrlServiceImpl implements UrlService {
     @Override
     public String getOriginalUrl(String shortCode) {
 
-        String cachedUrl = cacheService.get(shortCode);
-        if (cachedUrl != null) {
-            return cachedUrl;
-        }
-
+        
         Url entity = urlRepository.findByShortCode(shortCode)
                 .orElseThrow(() -> new RuntimeException("URL not found"));
 
-        cacheService.save(shortCode, entity.getLongUrl());
+        
 
         return entity.getLongUrl();
     }

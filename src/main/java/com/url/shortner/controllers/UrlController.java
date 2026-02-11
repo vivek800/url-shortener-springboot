@@ -21,11 +21,11 @@ public class UrlController {
     @PostMapping("/shorten")
     public ResponseEntity<ApiResponse<UrlResposne>> shorten(
             @Valid @RequestBody UrlRequest request) {
-
+    	
         String shortCode = urlService.createShortUrl(request.longUrl());
 
         String shortUrl = "https://short.ly/" + shortCode;
-
+        
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(
                         true,
