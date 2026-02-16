@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.url.shortner.dto.EmailService;
@@ -98,13 +102,26 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<TransactionAccountView> getSuccessfulTransactions(Long accountId) {
-    	
-    	
-        return transactionRepository.findSuccessfulTxnsWithAccount(accountId);
-    }
+     @Override
+     @Transactional(readOnly = true)
+     public Page<TransactionAccountView> getSuccessfulTransactions(
+             Long accountId, int page, int size) {
+
+         Pageable pageable = PageRequest.of(
+                 page,
+                 size,
+                 Sort.by(Sort.Direction.DESC, "txnDate")
+         );
+
+         return transactionRepository
+                 .findSuccessfulTxnsWithAccount(accountId, pageable);
+     }
+
+	 @Override
+	 public BigDecimal getTotalAmount(Long id, TransactionType type) {
+		 
+		return transactionRepository.getTotalAmountByType(id, type);
+	 }
 
 
    

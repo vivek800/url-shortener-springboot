@@ -1,7 +1,9 @@
 package com.url.shortner.controllers;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import com.url.shortner.dto.CreateTransactionRequest;
 import com.url.shortner.dto.TransactionAccountView;
 import com.url.shortner.dto.TransactionDetailsResponse;
 import com.url.shortner.dto.TransactionResponse;
+import com.url.shortner.dto.TransactionType;
 import com.url.shortner.entity.Transaction;
 import com.url.shortner.mapper.TransactionMapper;
 import com.url.shortner.services.TransactionService;
@@ -47,23 +50,25 @@ public class TransactionController {
     
     
     @GetMapping("/transactions/{accountId}")
-    public ResponseEntity<ApiResponse<List<TransactionDetailsResponse>>> 
-    getTransactionsByAccountId(@PathVariable Long accountId) {
-
-        List<TransactionAccountView> transactions =
-                transactionService.getSuccessfulTransactions(accountId);
-
-        List<TransactionDetailsResponse> responseList =
-                transactions.stream()
-                        .map(TransactionMapper::fromView)
-                        .toList();
+    public ResponseEntity<Page<TransactionAccountView>> getTransactions(
+            @PathVariable Long accountId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity.ok(
-                new ApiResponse<>(true, "Transactions fetched successfully", responseList)
+                transactionService.getSuccessfulTransactions(accountId, page, size)
         );
     }
+    
+    
+    @GetMapping("/accounts/{id}/total")
+    public ResponseEntity<BigDecimal> getTotal(
+            @PathVariable Long id,
+            @RequestParam TransactionType type) {
+
+        return ResponseEntity.ok(transactionService.getTotalAmount(id, type));
 
     }
 
 
-
+}
